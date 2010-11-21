@@ -7,28 +7,24 @@ public class PassOne {
 	public 	static int locCtr = 0;
 	private static String programName;
 	private static String Mnemonic;
-	private static LineInterFile[] interFile = new LineInterFile[Assembler.sourceFile.length+1];
+	public static InterFile[] interFile = new InterFile[Assembler.sourceFile.length];
 	private static int opCode;
-	private static int programLength;
+	private static int programLength = 0;
 	private static Map<String, Integer> symbolTAB = new HashMap<String, Integer>();
 	
 	public static void readFirstLine()	{
 		String [] line = Assembler.sourceFile[0];				//讀進第一行
-		if(line[1].equals("START"))				//判斷是否為START			
+		if(line[1].equals("START")){//判斷是否為START			
 			//將第一個#[OPERAND]定義為開始地址
-			locCtr = start = Integer.parseInt(line[2]);	//將最後一個數值16進位轉成10進位		
-		programName = line[0];		
-		interFile[0] = new LineInterFile();
-		interFile[0].locCtr = start;
-		interFile[0].label = programName;
-		interFile[0].Mnemonic = "START";
-		interFile[0].oprand = line[2];
-		System.out.println(0+"\t"+interFile[0].locCtr+"\t"+interFile[0].label+"\t"+interFile[0].Mnemonic+"\t"+interFile[0].oprand);
-	}	
-	
+			locCtr = start = Integer.parseInt(line[2], 16);	//將最後一個數值16進位轉成10進位		
+			programName = line[0];		
+			interFile[0] = new InterFile(start, programName, line[1], line[2]);
+			interFile[0].outPut(0);
+		}
+	}		
 	public static void readline(int index){
 		String [] line = Assembler.sourceFile[index];
-		interFile[index] = new LineInterFile();
+		interFile[index] = new InterFile();
 		if(line.length == 3){//一行有3個元素，必定有label
 			String label = line[0];
 			if(!symbolTAB.containsKey(label)){	//從symbolTAB看有沒有重複的label
@@ -42,14 +38,17 @@ public class PassOne {
 			case 1:			//RSUB
 				Mnemonic = line[0];
 				break;
+			/*case 2: // label + RSUB
+				if(line[1] 在OPTAB內 == true)
+				break;*/
 			default:		//label + Mnemonic + operand || Mnemonic + operand
 				Mnemonic = line[line.length - 2];	//Mnemonic
 				interFile[index].oprand = line[line.length-1];
 				break;
 		}
 		opCode = Operation.getOperator(Mnemonic);
-		interFile[index].Mnemonic = Mnemonic;
-		interFile[index].opCode = opCode;
+		interFile[index].setInterLine(locCtr, opCode, Mnemonic);
+		interFile[index].outPut(index);
 		switch(opCode){
 			case Operation.NoFound:						//設定ERROR旗標(invalid operation code)
 				interFile[index].ERROR = "line: " + index + " can't find operator " + Mnemonic;
@@ -74,22 +73,17 @@ public class PassOne {
 			default:									//找到OPTAB有對應的OPCODE
 				locCtr += 3;
 				break;
-		}
-		interFile[index].locCtr = locCtr;		
-		System.out.println(index+"\t"+interFile[index].locCtr+"\t"+interFile[index].label+"\t"+interFile[index].Mnemonic+"\t"+interFile[index].oprand+"\t"+interFile[index].ERROR);
+		}			
 	}	
 	public static void readLatline(){		
-		int lastLine = Assembler.sourceFile.length-1;	
+		int lastLine = Assembler.sourceFile.length-1;		
 		String [] line = Assembler.sourceFile[lastLine];		
 		if(line.length == 2 && line[0].equals("END"))	
 			programLength = locCtr - start;
 		else if(line[0].equals("END"))
-			programLength = locCtr;			
-		System.out.println(lastLine+""+interFile.length);
-		interFile[lastLine].Mnemonic = "END";	
-		
-		interFile[lastLine].oprand = line[1];
-		System.out.println(interFile[lastLine].locCtr+"\t"+interFile[lastLine].label+"\t"+interFile[lastLine].Mnemonic+"\t"+interFile[lastLine].oprand);
+			programLength = locCtr;	
+		interFile[lastLine] = new InterFile(programLength, line[0], line[1]);
+		interFile[lastLine].outPut(lastLine);
 	}
 	public static void putLabelInSymbolTAB(String label){
 		symbolTAB.put(label, locCtr);

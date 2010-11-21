@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.LinkedList;
 
 
-public class FileReaderPassOne {
+public class ReaderFile {
 	public static String [][] read(String source)	{
 		LinkedList<String []> sourceFile = new LinkedList<String []>();
 		FileReader fileReader = readSourceFile(source);
