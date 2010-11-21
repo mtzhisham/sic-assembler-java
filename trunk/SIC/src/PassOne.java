@@ -9,36 +9,34 @@ import java.util.Map;
 public class PassOne {
 	public static int start = 0;
 	public 	static int locCtr = 0;
-	private static String programName;
 	private static String Mnemonic;
-	public static InterFile[] interFile = new InterFile[Assembler.sourceFile.length];
+	public static InterFile interFile;
 	private static int opCode;
 	private static int programLength = 0;
 	private static Map<String, Integer> symbolTAB = new HashMap<String, Integer>();
 
-	public static void readFirstLine()	throws IOException{
-		
+	public static void readFirstLine()	throws IOException{		
 		String [] line = Assembler.sourceFile[0];				//讀進第一行
+		interFile = new InterFile();
 		if(line[1].equals("START")){//判斷是否為START			
 			//將第一個#[OPERAND]定義為開始地址
-			locCtr = start = Integer.parseInt(line[2], 16);	//將最後一個數值16進位轉成10進位		
-			programName = line[0];		
-			interFile[0] = new InterFile(start, programName, line[1], line[2]);	
-			Assembler.bufferedwriter.write(interFile[0].outPut(0));
+			locCtr = start = Integer.parseInt(line[2], 16);	//將最後一個數值16進位轉成10進位	
+			interFile.setInterLine(locCtr, line[0], line[1], line[2]);
+			Assembler.bufferedwriter.write(interFile.outPut(0));
 			Assembler.bufferedwriter.newLine();			
 		}
 	}		
 	public static void readline(int index) throws IOException{
 		String [] line = Assembler.sourceFile[index];
-		interFile[index] = new InterFile();
+		interFile = new InterFile();
 		if(line.length == 3){//一行有3個元素，必定有label
 			String label = line[0];
 			if(!symbolTAB.containsKey(label)){	//從symbolTAB看有沒有重複的label
 				putLabelInSymbolTAB(label);
-				interFile[index].label = label;
+				interFile.label = label;
 			}
 			else
-				interFile[index].ERROR = "line: " + index + "duplicate label: " + label;
+				interFile.ERROR = "line: " + index + "duplicate label: " + label;
 		}
 		switch(line.length){//判斷一行有幾個元素。
 			case 1:			//RSUB
@@ -49,16 +47,14 @@ public class PassOne {
 				break;*/
 			default:		//label + Mnemonic + operand || Mnemonic + operand
 				Mnemonic = line[line.length - 2];	//Mnemonic
-				interFile[index].oprand = line[line.length-1];
+				interFile.oprand = line[line.length-1];
 				break;
 		}
 		opCode = Operation.getOperator(Mnemonic);
-		interFile[index].setInterLine(locCtr, opCode, Mnemonic);
-		Assembler.bufferedwriter.write(interFile[index].outPut(index));
-		Assembler.bufferedwriter.newLine();	
+		interFile.setInterLine(locCtr, opCode, Mnemonic);
 		switch(opCode){
 			case Operation.NoFound:						//設定ERROR旗標(invalid operation code)
-				interFile[index].ERROR = "line: " + index + " can't find operator " + Mnemonic;
+				interFile.ERROR = "line: " + index + " can't find operator " + Mnemonic;
 				break;
 			case Operation.WORD:						
 				locCtr += 3;							//將LOCCTR指派為LOCCTR+3BTYE
@@ -81,16 +77,19 @@ public class PassOne {
 				locCtr += 3;
 				break;
 		}			
+		Assembler.bufferedwriter.write(interFile.outPut(index));
+		Assembler.bufferedwriter.newLine();	
 	}	
 	public static void readLatline() throws IOException{		
 		int lastLine = Assembler.sourceFile.length-1;		
-		String [] line = Assembler.sourceFile[lastLine];		
+		String [] line = Assembler.sourceFile[lastLine];	
+		interFile = new InterFile();
 		if(line.length == 2 && line[0].equals("END"))	
 			programLength = locCtr - start;
 		else if(line[0].equals("END"))
 			programLength = locCtr;	
-		interFile[lastLine] = new InterFile(programLength, line[0], line[1]);
-		Assembler.bufferedwriter.write(interFile[lastLine].outPut(lastLine));
+		interFile.setInterLine(line[0], line[1]);
+		Assembler.bufferedwriter.write(interFile.outPut(lastLine));
 		Assembler.bufferedwriter.newLine();
 		Assembler.bufferedwriter.close();
 	}

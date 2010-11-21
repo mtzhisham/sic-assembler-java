@@ -16,29 +16,15 @@ public class InterFile {
 		ObjectCode = 0;
 		ERROR = "";
 	}
-	public InterFile( int loc, int op, String lab, String Mnem, String opra, String ER){
-		locCtr = loc;
-		opCode = op;
-		label = lab;
+	public void setInterLine( String Mnem, String opra){
 		Mnemonic = Mnem;
 		oprand = opra;
-		ERROR = ER;
-	}
-	public InterFile( int loc, String Mnem, String opra){
-		locCtr = loc;
-		opCode = -5;
-		label = "";
-		Mnemonic = Mnem;
-		oprand = opra;
-		ERROR = "";
 	}	
-	public InterFile( int loc, String lab, String Mnem, String opra){
+	public void setInterLine( int loc, String lab, String Mnem, String opra){
 		locCtr = loc;
-		opCode = -5;
 		label = lab;
 		Mnemonic = Mnem;
 		oprand = opra;
-		ERROR = "";
 	}	
 	public void setInterLine(int loc, int op, String Mnem){
 		locCtr = loc;
