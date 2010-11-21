@@ -45,7 +45,7 @@ public class InterFile {
 		opCode = op;
 		Mnemonic = Mnem;		
 	}
-	public void outPut(int line){
-		System.out.println(line+"\t"+locCtr+"\t"+opCode+"\t"+label+"\t"+Mnemonic+"\t"+oprand+"\t"+ERROR);
+	public String outPut(int line){
+		return line+"\t"+locCtr+"\t"+opCode+"\t"+label+"\t"+Mnemonic+"\t"+oprand+"\t"+ERROR;		
 	}
 }

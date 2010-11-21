@@ -1,3 +1,7 @@
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,18 +15,20 @@ public class PassOne {
 	private static int opCode;
 	private static int programLength = 0;
 	private static Map<String, Integer> symbolTAB = new HashMap<String, Integer>();
-	
-	public static void readFirstLine()	{
+
+	public static void readFirstLine()	throws IOException{
+		
 		String [] line = Assembler.sourceFile[0];				//讀進第一行
 		if(line[1].equals("START")){//判斷是否為START			
 			//將第一個#[OPERAND]定義為開始地址
 			locCtr = start = Integer.parseInt(line[2], 16);	//將最後一個數值16進位轉成10進位		
 			programName = line[0];		
-			interFile[0] = new InterFile(start, programName, line[1], line[2]);
-			interFile[0].outPut(0);
+			interFile[0] = new InterFile(start, programName, line[1], line[2]);	
+			Assembler.bufferedwriter.write(interFile[0].outPut(0));
+			Assembler.bufferedwriter.newLine();			
 		}
 	}		
-	public static void readline(int index){
+	public static void readline(int index) throws IOException{
 		String [] line = Assembler.sourceFile[index];
 		interFile[index] = new InterFile();
 		if(line.length == 3){//一行有3個元素，必定有label
@@ -48,7 +54,8 @@ public class PassOne {
 		}
 		opCode = Operation.getOperator(Mnemonic);
 		interFile[index].setInterLine(locCtr, opCode, Mnemonic);
-		interFile[index].outPut(index);
+		Assembler.bufferedwriter.write(interFile[index].outPut(index));
+		Assembler.bufferedwriter.newLine();	
 		switch(opCode){
 			case Operation.NoFound:						//設定ERROR旗標(invalid operation code)
 				interFile[index].ERROR = "line: " + index + " can't find operator " + Mnemonic;
@@ -75,7 +82,7 @@ public class PassOne {
 				break;
 		}			
 	}	
-	public static void readLatline(){		
+	public static void readLatline() throws IOException{		
 		int lastLine = Assembler.sourceFile.length-1;		
 		String [] line = Assembler.sourceFile[lastLine];		
 		if(line.length == 2 && line[0].equals("END"))	
@@ -83,7 +90,9 @@ public class PassOne {
 		else if(line[0].equals("END"))
 			programLength = locCtr;	
 		interFile[lastLine] = new InterFile(programLength, line[0], line[1]);
-		interFile[lastLine].outPut(lastLine);
+		Assembler.bufferedwriter.write(interFile[lastLine].outPut(lastLine));
+		Assembler.bufferedwriter.newLine();
+		Assembler.bufferedwriter.close();
 	}
 	public static void putLabelInSymbolTAB(String label){
 		symbolTAB.put(label, locCtr);
