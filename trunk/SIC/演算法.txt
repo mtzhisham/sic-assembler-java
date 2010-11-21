@@ -1,0 +1,8 @@
+取得路徑，
+讀取檔到Buffer
+讀取Buffer的每一行
+迴圈
+line.trim().replaceAll("\\s+", " ")將各種空白字元換置成空白
+Stirng temp = line.split(" ");//字串切割
+加入到LinkedList<String[]>
+
