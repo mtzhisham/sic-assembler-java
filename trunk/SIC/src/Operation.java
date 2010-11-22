@@ -7,9 +7,8 @@ public class Operation {
 	public static final int BYTE = -2;	
 	public static final int RESW = -3;
 	public static final int RESB = -4;
-	public static final int NoFound = -5;
-	
-	private static Map<String, Integer> OPTAB;
+	public static final int NoFound = -5;	
+	public static Map<String, Integer> OPTAB;
 	
 	public static void setOperator(){//≥]∏mOPTABLE°AµÍ¿¿ΩX
 		OPTAB = new HashMap<String, Integer>();

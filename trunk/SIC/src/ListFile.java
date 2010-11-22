@@ -1,19 +1,19 @@
 
-public class InterFile {
+public class ListFile {
 	public int locCtr;
 	public int opCode;	
 	public String label;
 	public String Mnemonic;
 	public String oprand;
-	public int ObjectCode;
+	public String ObjectCode;
 	public String ERROR;
-	public InterFile(){
+	public ListFile(){
 		locCtr = -1;
 		opCode = -5;
 		label = "";
 		Mnemonic = "";
 		oprand = "";
-		ObjectCode = 0;
+		ObjectCode = "";
 		ERROR = "";
 	}
 	public void setInterLine( String Mnem, String opra){
@@ -31,7 +31,17 @@ public class InterFile {
 		opCode = op;
 		Mnemonic = Mnem;		
 	}
+	public void setInterLine(int loc, String lab, String Mnem, String opra, String Obj){
+		locCtr = loc;
+		label = lab;
+		Mnemonic = Mnem;
+		oprand = opra;
+		ObjectCode = Obj;
+	}
 	public String outPut(int line){
-		return line+"\t"+locCtr+"\t"+opCode+"\t"+label+"\t"+Mnemonic+"\t"+oprand+"\t"+ERROR;		
+		return locCtr+"\t"+opCode+"\t"+label+"\t"+Mnemonic+"\t"+oprand+"\t"+ERROR;		
+	}
+	public String outPut(){
+		return locCtr+"\t"+label+"\t"+Mnemonic+"\t"+oprand+"\t"+ObjectCode+"\t"+ERROR;		
 	}
 }
