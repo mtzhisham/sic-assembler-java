@@ -5,12 +5,15 @@ public class PassTwo {
 	private static int start = 0;
 	private static ListFile listFile;
 	private static int lastLine = Assembler.sourceFile.length-1;;
-	private static StringBuffer TextRecord = new StringBuffer();
+	public static String TextRecord="";
 	private static String ObjectCode="";
 	private static String label="";
 	private static String locctrStr;
+	private static int nextLoc;
 	private static int locctr;
+	private static int lineStart;
 	private static int opcode;
+	private final static int MAX_OUTPUT_LENGTH = 60;
 	public static void readFirstLine()	throws IOException{		
 		String [] line = Assembler.sourceFile[0];				//讀進第一行
 		listFile = new ListFile();
@@ -25,14 +28,12 @@ public class PassTwo {
 		label = "";
 		String [] line = Assembler.sourceFile[index];				//讀進第一行
 		opcode = Integer.valueOf(line[1]);
-		locctrStr = intToHexString(Integer.parseInt(line[0]), 4);
-		//locctr = Integer.valueOf(locctrStr);///Integer.parseInt(intToHexString(Integer.parseInt(line[0]), 4));
-		//System.out.println(locctr);
+		locctrStr = intToHexString(Integer.parseInt(line[0]), 4);	
+		locctr = Integer.valueOf(locctrStr, 16);
 		listFile = new ListFile();
 		String Mnemonic = null;
 		String Operand = null;
 		int byteLength;
-		String str = "";
 		int address = 0;
 		switch(line.length){										//判斷一行有幾個元素。
 			case 3:												//1+2	//RSUB
@@ -58,22 +59,21 @@ public class PassTwo {
 				&& opcode != Operation.RESB && opcode != Operation.RESW){
 			if(Operand != "" && Operand.contains(",X") ){	//索引定址	
 				address = (1 << 15);
-				Operand = line[line.length - 1].split(",X")[0];
-				ObjectCode = opcode + Integer.valueOf(address).toString();
-				//System.out.println(ObjectCode + address);
+				Operand = line[line.length - 1].split(",X")[0];				//Operand去除了",X"
 			}
-			if(PassOne.symbolTAB.containsKey(Operand))	{	//有在symbolTAB找到Operand，
+			if(PassOne.symbolTAB.containsKey(Operand))	{					//有在symbolTAB找到Operand，
 				//System.out.println(Operand);
-				address = PassOne.symbolTAB.get(Operand);	//取出其地址
+				address += PassOne.symbolTAB.get(Operand);					//取出Operand地址+X
+				//System.out.println(opcode +"\t"+ address);
 			}else if(Operand != ""){										//沒有則為一個尚未定義個symbol
 				address =0;
-				System.out.println(Operand+"設定ERROR旗標undefined symbol");//設定ERROR旗標(undefined symbol)
+				//System.out.println(Operand+"設定ERROR旗標undefined symbol");//設定ERROR旗標(undefined symbol)
 			}
 			ObjectCode = pad(Integer.toHexString(opcode)+Integer.toHexString(address), 6);			
+			//System.out.println(ObjectCode);
 		}		
 		else if(opcode == Operation.WORD){			//如果OPCODE為'WORD'：將內容轉成目的碼			
 			ObjectCode = intToHexString(Integer.valueOf(line[4]), 6);
-			
 		}
 		else if(opcode == Operation.BYTE){			//如果OPCODE為'BYTE'：將內容轉成目的碼
 			String [] sta = line[4].split("'");			
@@ -95,14 +95,10 @@ public class PassTwo {
 		}
 		else
 			ObjectCode ="";			
-		//System.out.println(locctr+"\t"+line[2]+"\t"+line[3]+"\t"+line[4]+"\t"+ObjectCode);
 		listFile.setInterLine(locctr, label, Mnemonic, Operand, ObjectCode);		
 		Assembler.bufferedwriter.write(listFile.outPut());
 		Assembler.bufferedwriter.newLine();
-		TextRecord.append(str);
-		//System.out.println(sb);
-		if(TextRecord.length() >= 50)
-			writeTextRecord(TextRecord);
+		writeTextRecord(Integer.parseInt(line[0]), ObjectCode);
 	}
 	public static void readLastLine()	throws Exception{
 		String [] line = Assembler.sourceFile[lastLine-1];				//讀進第一行
@@ -120,8 +116,38 @@ public class PassTwo {
 		Assembler.bufferedObjectCode.write(intToHexString(start, 6)+intToHexString(length, 6));	
 		Assembler.bufferedObjectCode.newLine();
 	}
-	private static void writeTextRecord(StringBuffer sb)throws Exception{
-		
+
+	private static void writeTextRecord(int loc, String objcode) throws Exception	{
+		int objcodeLength = (int)(objcode.length() * 0.5 + 0.5);		
+		if(nextLoc == loc)	{							//目前位址=新的一行起始位置，需要開啟新的一行
+			if(TextRecord.isEmpty())					//一行開始TextRecord為空的
+				lineStart = loc;						//將lineStart初始化為loc
+			else if(TextRecord.length() >= MAX_OUTPUT_LENGTH)	//TextRecord長度超過MAX_OUTPUT_LENGTH
+				writeBuffer();									//計算並寫入一行TextRecord
+		}
+		else{
+			writeBuffer();
+			lineStart = loc;
+		}
+		TextRecord += objcode;							//需要有個判斷，加入ObjectCode前可以判斷是否超過
+		nextLoc = loc + objcodeLength;					//下一個起始位址=目前這行起始位置+這行長度
+	}
+	public static void writeBuffer() throws Exception	{
+		String lineOutput;
+		if(TextRecord.length() < MAX_OUTPUT_LENGTH)	{
+			lineOutput = TextRecord;
+			TextRecord = "";
+		}
+		else{												//超過MAX_OUTPUT_LENGTH
+			lineOutput = TextRecord.substring(0, MAX_OUTPUT_LENGTH); //寫入MAX_OUTPUT_LENGTH之內的長度
+			TextRecord = TextRecord.substring(MAX_OUTPUT_LENGTH);	//繼續保留MAX_OUTPUT_LENGTH的長度
+		}		
+		Assembler.bufferedObjectCode.write("T");
+		Assembler.bufferedObjectCode.write(intToHexString(lineStart, 6));			//寫入起始位址
+		Assembler.bufferedObjectCode.write(getBufferLengthString(lineOutput));		//該行長度
+		Assembler.bufferedObjectCode.write(lineOutput);								//ObjectCode
+		Assembler.bufferedObjectCode.newLine();		
+		lineStart += (int)(lineOutput.length() * 0.5 + 0.5);
 	}
 	private static void writeEndRecord() throws Exception	{
 		Assembler.bufferedObjectCode.write("E");
@@ -145,5 +171,9 @@ public class PassTwo {
 		for(int i = 0; i < length; i++)										//不足6位補零
 			str = "0" + str;
 		return str;
-    }    
+    }   
+	private static String getBufferLengthString(String buf)	{
+		String str = Integer.toHexString((int) (buf.length()*0.5+0.5));
+		return pad(str, 2);
+	}
 }
