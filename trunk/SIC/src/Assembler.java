@@ -4,6 +4,12 @@ import java.io.IOException;
 
 public class Assembler {
 	public static String [][] sourceFile;
+	//public static String Common = "C:\\Documents and Settings\\Siobhan\\workspace\\SIC\\";
+	public static String Common = "D:\\Android\\SIC\\";
+	public static String EX_2_1 = "EX-2-1.txt";
+	public static String InterFile = "InterFile.txt";
+	public static String AssemblyListing = "AssemblyListing.txt";
+	public static String ObjectCode = "ObjectCode.txt";
 	private static String source = null;	
 	private static String purpose = null;	
 	public static BufferedWriter bufferedwriter;
@@ -20,18 +26,15 @@ public class Assembler {
 	}	
 	public static void main(String[] args) throws Exception{
 		// TODO Auto-generated method stub	
-		source = "C:\\Documents and Settings\\Siobhan\\workspace\\SIC\\EX-2-1.txt";
-		//source = "D:\\Android\\SIC\\EX-2-1.txt";
+		source = Common+EX_2_1;
 		sourceFile = ReaderFile.read(source);
 		PassOne(purpose);		
-		source = "C:\\Documents and Settings\\Siobhan\\workspace\\SIC\\InterFile.txt";
-		//source = "D:\\Android\\SIC\\InterFile.txt";//中間檔儲存地點。
+		source = Common+InterFile;//中間檔儲存地點。
 		sourceFile = ReaderFile.read(source);
 		PassTwo(purpose);
 	}
 	private static void PassOne(String purpose) throws IOException{
-		purpose = "C:\\Documents and Settings\\Siobhan\\workspace\\SIC\\InterFile.txt";
-		//purpose = "D:\\Android\\SIC\\InterFile.txt";	
+		purpose = Common+InterFile;	
 		CreateFile(purpose);
 		PassOne.readFirstLine();
 		for(int i = 1; i < sourceFile.length-1; i++)
@@ -39,19 +42,16 @@ public class Assembler {
 		PassOne.readLatline();		
 	}	
 	private static void PassTwo(String purpose) throws Exception{
-		//purpose = "D:\\Android\\SIC\\AssemblyListing.txt";	
-		purpose = "C:\\Documents and Settings\\Siobhan\\workspace\\SIC\\AssemblyListing.txt";
+		purpose = Common+AssemblyListing;	
 		CreateFile(purpose);
-		purpose = "C:\\Documents and Settings\\Siobhan\\workspace\\SIC\\ObjectCode.txt";
-		//purpose = "D:\\Android\\SIC\\ObjectCode.txt";	
+		purpose = Common+ObjectCode;	
 		CreateObjectCodeFile(purpose);
 		PassTwo.readFirstLine();
 		for(int i = 1; i < sourceFile.length-2; i++)//扣掉最後一行(程式長度)、倒數第二行END
 			PassTwo.readLine(i);
-		if(PassTwo.TextRecord.length() != 0) PassTwo.writeBuffer();
+		if(PassTwo.TextRecord.length() != 0) PassTwo.writeBuffer(); //最後一行TextRecord
 		PassTwo.readLastLine();
 		Assembler.bufferedwriter.close();
 		Assembler.bufferedObjectCode.close();
 	}
-
 }
