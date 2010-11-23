@@ -79,11 +79,13 @@ public class PassOne {
 		int lastLine = Assembler.sourceFile.length-1;		
 		String [] line = Assembler.sourceFile[lastLine];	
 		listFile = new ListFile();
-		if(line.length == 2 && line[0].equals("END"))	
+		if(line.length == 2 && line[0].equals("END"))	{
 			programLength = locCtr - start;
-		else if(line[0].equals("END"))
-			programLength = locCtr;			
-		listFile.setInterLine(line[0], line[1]);
+			listFile.setInterLine(line[0], line[1]);
+		}else if(line[0].equals("END")){
+			programLength = locCtr;		
+			listFile.Mnemonic = line[0];
+		}
 		Assembler.bufferedwriter.write(listFile.outPut(lastLine));
 		Assembler.bufferedwriter.newLine();
 		Assembler.bufferedwriter.write(Integer.valueOf(programLength).toString());
