@@ -27,6 +27,7 @@ public class Operation {
 		OPTAB.put("JGT",   0x34);		OPTAB.put("DIV",   0x24);		
 		OPTAB.put("WORD",  WORD);		OPTAB.put("BYTE",  BYTE);
 		OPTAB.put("RESW",  RESW);		OPTAB.put("RESB",  RESB);
+		OPTAB.put("AND",   0x40);		OPTAB.put("OR",   0x44);
 	}
 	public static int getOperator(String Code){
 		if(OPTAB == null)

@@ -4,9 +4,9 @@ import java.io.IOException;
 
 public class Assembler {
 	public static String [][] sourceFile;
-	//public static String Common = "C:\\Documents and Settings\\Siobhan\\workspace\\SIC\\";
-	public static String Common = "D:\\Android\\SIC\\";
-	public static String EX_2_1 = "EX-2-1.txt";
+	public static String Common = "C:\\Documents and Settings\\Siobhan\\workspace\\SIC\\";
+	//public static String Common = "D:\\Android\\SIC\\";
+	public static String EX_2_1 = "SRCFILE";
 	public static String InterFile = "InterFile.txt";
 	public static String AssemblyListing = "AssemblyListing.txt";
 	public static String ObjectCode = "ObjectCode.txt";
